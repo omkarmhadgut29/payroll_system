@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { Employee } from "../models/employee.models.js";
 
 const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
@@ -14,7 +15,12 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRETE_KEY
     );
 
-    if (!decodedToken.status) {
+    if (!decodedToken) {
+      return res.status(401).json({ messeage: "Unauthorized request..." });
+    }
+
+    const user = await Employee.findById(decodedToken._id);
+    if (!user.status) {
       return res.status(401).json({
         messeage: "Unauthorised request...",
       });
